@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tablero de Bingo Online (000 - 200)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100 min-h-screen text-slate-800 pb-12">
+
+  <!-- Encabezado -->
+  <header class="bg-indigo-700 text-white py-6 shadow-md">
+    <div class="max-w-6xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-4">
+      <div>
+        <div class="flex items-center gap-2">
+          <h1 class="text-2xl md:text-3xl font-bold">🎱 Bingo Online (000 - 200)</h1>
+          <span id="status-badge" class="bg-amber-500 text-white text-xs px-2 py-0.5 rounded-full font-semibold animate-pulse">
+            Conectando...
+          </span>
+        </div>
+        <p class="text-indigo-200 text-sm mt-1">Toca los números verdes que quieras comprar y completa tus datos para bloquearlos.</p>
+      </div>
+
+      <!-- Contadores y Botón Admin -->
+      <div class="flex items-center gap-3 text-center">
+        <div class="bg-indigo-800 px-4 py-2 rounded-lg">
+          <span class="block text-xs text-indigo-200">Disponibles</span>
+          <span id="count-free" class="text-xl font-bold text-emerald-400">201</span>
+        </div>
+        <div class="bg-indigo-800 px-4 py-2 rounded-lg">
+          <span class="block text-xs text-indigo-200">Vendidos</span>
+          <span id="count-sold" class="text-xl font-bold text-rose-400">0</span>
+        </div>
+        <button onclick="window.toggleAdmin()" id="admin-btn" class="bg-indigo-900 hover:bg-indigo-950 text-indigo-200 text-xs px-3 py-2 rounded-lg border border-indigo-600 transition">
+          🔑 Admin
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-4 mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+    
+    <!-- Columna Izquierda: Tablero Numérico -->
+    <div class="lg:col-span-2 bg-white p-4 md:p-6 rounded-xl shadow-sm border border-slate-200">
+      <div class="flex flex-wrap justify-between items-center mb-4 gap-2">
+        <div class="flex gap-3 text-xs font-medium">
+          <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-emerald-100 border border-emerald-500 inline-block"></span> Disponible</span>
+          <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-indigo-600 inline-block"></span> Tu selección</span>
+          <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-rose-100 border border-rose-400 inline-block"></span> Vendido</span>
+        </div>
+        <select id="filter-select" onchange="window.renderBoard()" class="text-sm border border-slate-300 rounded-lg px-2 py-1">
+          <option value="all">Ver todos (201)</option>
+          <option value="free">Solo disponibles</option>
+          <option value="sold">Solo vendidos</option>
+        </select>
+      </div>
+
+      <!-- Cuadrícula de números -->
+      <div id="board-grid" class="grid grid-cols-5 sm:grid-cols-8 md:grid-cols-10 gap-2 max-h-[550px] overflow-y-auto p-1">
+        <!-- Generado en tiempo real -->
+      </div>
+    </div>
+
+    <!-- Columna Derecha: Formulario de Reserva -->
+    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 h-fit sticky top-6">
+      <h2 class="text-lg font-bold mb-3 border-b pb-2">Reservar mis Números</h2>
+      
+      <div class="mb-4">
+        <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Números elegidos:</label>
+        <div id="selected-badges" class="min-h-[44px] p-2 bg-slate-50 border border-dashed border-slate-300 rounded-lg flex flex-wrap gap-1.5 items-center text-sm text-slate-400">
+          Toca los números en el tablero...
+        </div>
+      </div>
+
+      <form id="reserve-form" onsubmit="window.handleReserve(event)" class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium mb-1">Nombre y Apellido *</label>
+          <input type="text" id="buyer-name" required placeholder="Ej: María Gómez"
+            class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium mb-1">Teléfono / WhatsApp *</label>
+          <input type="tel" id="buyer-phone" required placeholder="Ej: 11 2345-6789"
+            class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+        </div>
+
+        <button type="submit" id="submit-btn" disabled
+          class="w-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-semibold py-2.5 rounded-lg transition">
+          Confirmar y Bloquear
+        </button>
+      </form>
+    </div>
+
+  </main>
+
+  <!-- Panel Exclusivo de Administrador -->
+  <section id="admin-section" class="max-w-6xl mx-auto px-4 mt-8 hidden">
+    <div class="bg-white p-6 rounded-xl shadow-sm border-2 border-indigo-500">
+      <div class="flex flex-wrap justify-between items-center mb-4 gap-2">
+        <div>
+          <h2 class="text-lg font-bold text-indigo-900">🛡️ Panel de Organizador (Modo Admin Activo)</h2>
+          <p class="text-xs text-slate-500">Consulta los datos de los compradores, libera números o descarga la planilla en formato Excel.</p>
+        </div>
+        <div class="flex gap-2">
+          <button onclick="window.exportCSV()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-3 py-2 rounded-lg">
+            ⬇️ Descargar Excel (CSV)
+          </button>
+          <button onclick="window.clearAll()" class="bg-rose-100 hover:bg-rose-200 text-rose-700 text-xs font-semibold px-3 py-2 rounded-lg">
+            🗑️ Reiniciar Todo
+          </button>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse text-sm">
+          <thead>
+            <tr class="bg-slate-50 border-b text-slate-600">
+              <th class="py-2 px-3">Número</th>
+              <th class="py-2 px-3">Comprador</th>
+              <th class="py-2 px-3">Teléfono</th>
+              <th class="py-2 px-3">Fecha</th>
+              <th class="py-2 px-3 text-right">Acción</th>
+            </tr>
+          </thead>
+          <tbody id="buyers-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- Script de Firebase en Tiempo Real -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getDatabase, ref, onValue, runTransaction, remove } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+    // Configuración oficial de tu proyecto Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyDHrcwDKg5e0njl8AOLPFapK6QucVYu7Gs",
+      authDomain: "bingo-pxlv.firebaseapp.com",
+      databaseURL: "https://bingo-pxlv-default-rtdb.firebaseio.com",
+      projectId: "bingo-pxlv",
+      storageBucket: "bingo-pxlv.firebasestorage.app",
+      messagingSenderId: "17622291591",
+      appId: "1:17622291591:web:55a3dc573195590bcbd422"
+    };
+
+    // PIN para ingresar al panel de control (puedes cambiarlo si deseas)
+    const ADMIN_PIN = "1234";
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const numbersRef = ref(db, 'bingo_000_200');
+
+    const TOTAL_NUMBERS = 200;
+    let soldNumbers = {};
+    let selectedNumbers = new Set();
+    let isAdmin = false;
+
+    function formatNum(n) {
+      return String(n).padStart(3, '0');
+    }
+
+    // Listener reactivo en tiempo real
+    onValue(numbersRef, (snapshot) => {
+      soldNumbers = snapshot.val() || {};
+      
+      // Deseleccionar si otro usuario acaba de confirmar el número
+      selectedNumbers.forEach(num => {
+        if (soldNumbers[num]) selectedNumbers.delete(num);
+      });
+
+      const badge = document.getElementById('status-badge');
+      badge.textContent = "En línea (Tiempo Real)";
+      badge.className = "bg-emerald-500 text-white text-xs px-2 py-0.5 rounded-full font-semibold";
+
+      window.renderBoard();
+    }, (error) => {
+      console.error(error);
+      const badge = document.getElementById('status-badge');
+      badge.textContent = "Error de conexión";
+      badge.className = "bg-rose-500 text-white text-xs px-2 py-0.5 rounded-full font-semibold";
+    });
+
+    window.renderBoard = function() {
+      const grid = document.getElementById('board-grid');
+      const filter = document.getElementById('filter-select').value;
+      grid.innerHTML = '';
+
+      const soldCount = Object.keys(soldNumbers).length;
+      document.getElementById('count-sold').textContent = soldCount;
+      document.getElementById('count-free').textContent = (TOTAL_NUMBERS + 1) - soldCount;
+
+      for (let i = 0; i <= TOTAL_NUMBERS; i++) {
+        const numStr = formatNum(i);
+        const isSold = Boolean(soldNumbers[numStr]);
+        const isSelected = selectedNumbers.has(numStr);
+
+        if (filter === 'free' && isSold) continue;
+        if (filter === 'sold' && !isSold) continue;
+
+        const btn = document.createElement('button');
+        btn.type = 'button';
+
+        if (isSold) {
+          const buyer = soldNumbers[numStr];
+          btn.className = 'p-1.5 rounded-lg border border-rose-300 bg-rose-50 text-rose-800 flex flex-col items-center justify-center cursor-pointer hover:bg-rose-100 transition';
+          btn.innerHTML = `
+            <span class="font-bold text-xs line-through">${numStr}</span>
+            <span class="text-[10px] truncate w-full text-center font-medium">${buyer.name.split(' ')[0]}</span>
+          `;
+          btn.onclick = () => window.handleSoldClick(numStr);
+        } else if (isSelected) {
+          btn.className = 'p-2 rounded-lg border border-indigo-700 bg-indigo-600 text-white font-bold text-sm shadow-inner transform scale-95 transition';
+          btn.textContent = numStr;
+          btn.onclick = () => window.toggleSelect(numStr);
+        } else {
+          btn.className = 'p-2 rounded-lg border border-emerald-400 bg-emerald-50 hover:bg-emerald-100 text-emerald-900 font-bold text-sm transition';
+          btn.textContent = numStr;
+          btn.onclick = () => window.toggleSelect(numStr);
+        }
+
+        grid.appendChild(btn);
+      }
+
+      renderSelectedBadges();
+      if (isAdmin) renderTable();
+    };
+
+    window.toggleSelect = function(numStr) {
+      if (soldNumbers[numStr]) return;
+      if (selectedNumbers.has(numStr)) {
+        selectedNumbers.delete(numStr);
+      } else {
+        selectedNumbers.add(numStr);
+      }
+      window.renderBoard();
+    };
+
+    function renderSelectedBadges() {
+      const container = document.getElementById('selected-badges');
+      const submitBtn = document.getElementById('submit-btn');
+
+      if (selectedNumbers.size === 0) {
+        container.innerHTML = '<span class="text-slate-400 text-xs">Toca los números en el tablero...</span>';
+        submitBtn.disabled = true;
+        return;
+      }
+
+      submitBtn.disabled = false;
+      container.innerHTML = '';
+      Array.from(selectedNumbers).sort().forEach(num => {
+        const badge = document.createElement('span');
+        badge.className = 'bg-indigo-600 text-white text-xs font-bold px-2.5 py-1 rounded-full flex items-center gap-1';
+        badge.innerHTML = `${num} <button type="button" onclick="window.toggleSelect('${num}')" class="hover:text-indigo-200 ml-1">&times;</button>`;
+        container.appendChild(badge);
+      });
+    }
+
+    // Transacción atómica para evitar duplicidad de compras concurrentes
+    window.handleReserve = async function(e) {
+      e.preventDefault();
+      if (selectedNumbers.size === 0) return;
+
+      const submitBtn = document.getElementById('submit-btn');
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Guardando...";
+
+      const name = document.getElementById('buyer-name').value.trim();
+      const phone = document.getElementById('buyer-phone').value.trim();
+      const now = new Date().toLocaleString('es-AR', { dateStyle: 'short', timeStyle: 'short' });
+
+      const numsToBuy = Array.from(selectedNumbers);
+      const failedNums = [];
+
+      for (const num of numsToBuy) {
+        const numRef = ref(db, `bingo_000_200/${num}`);
+        try {
+          const result = await runTransaction(numRef, (currentData) => {
+            if (currentData === null) {
+              return { name, phone, date: now };
+            }
+            return; 
+          });
+          if (!result.committed) failedNums.push(num);
+        } catch (err) {
+          failedNums.push(num);
+        }
+      }
+
+      selectedNumbers.clear();
+      document.getElementById('reserve-form').reset();
+      submitBtn.textContent = "Confirmar y Bloquear";
+
+      if (failedNums.length > 0) {
+        alert(`Atención: El o los números [${failedNums.join(', ')}] acaban de ser ocupados por otra persona.`);
+      } else {
+        alert(`¡Listo, ${name}! Tus números (${numsToBuy.join(', ')}) quedaron bloqueados exitosamente.`);
+      }
+      window.renderBoard();
+    };
+
+    window.handleSoldClick = function(numStr) {
+      const data = soldNumbers[numStr];
+      if (!isAdmin) {
+        alert(`🔒 Número ${numStr} reservado por: ${data.name}`);
+        return;
+      }
+      const unlock = confirm(
+        `🔒 NÚMERO ${numStr} (Modo Admin)\n\n` +
+        `👤 Comprador: ${data.name}\n` +
+        `📞 Teléfono: ${data.phone}\n` +
+        `📅 Fecha: ${data.date}\n\n` +
+        `¿Deseas LIBERAR este número para que vuelva a estar disponible?`
+      );
+      if (unlock) window.releaseNumber(numStr);
+    };
+
+    window.releaseNumber = async function(numStr) {
+      if (!isAdmin) return;
+      await remove(ref(db, `bingo_000_200/${numStr}`));
+    };
+
+    window.toggleAdmin = function() {
+      if (isAdmin) {
+        isAdmin = false;
+        document.getElementById('admin-section').classList.add('hidden');
+        document.getElementById('admin-btn').textContent = "🔑 Admin";
+        return;
+      }
+      const pin = prompt("Ingresa el PIN de Organizador:");
+      if (pin === ADMIN_PIN) {
+        isAdmin = true;
+        document.getElementById('admin-section').classList.remove('hidden');
+        document.getElementById('admin-btn').textContent = "🔓 Salir Admin";
+        renderTable();
+      } else if (pin !== null) {
+        alert("PIN incorrecto.");
+      }
+    };
+
+    function renderTable() {
+      const tbody = document.getElementById('buyers-table-body');
+      const entries = Object.entries(soldNumbers).sort((a, b) => a[0].localeCompare(b[0]));
+
+      if (entries.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="py-6 text-center text-slate-400">Aún no hay números vendidos.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = entries.map(([num, info]) => `
+        <tr class="border-b hover:bg-slate-50">
+          <td class="py-2 px-3 font-bold text-indigo-700">${num}</td>
+          <td class="py-2 px-3 font-medium">${info.name}</td>
+          <td class="py-2 px-3">${info.phone}</td>
+          <td class="py-2 px-3 text-xs text-slate-500">${info.date}</td>
+          <td class="py-2 px-3 text-right">
+            <button onclick="window.releaseNumber('${num}')" class="text-rose-600 hover:underline text-xs font-semibold">Liberar</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    window.exportCSV = function() {
+      const entries = Object.entries(soldNumbers).sort((a, b) => a[0].localeCompare(b[0]));
+      if (entries.length === 0) return alert('No hay números vendidos para exportar.');
+
+      let csv = 'Numero,Comprador,Telefono,Fecha\n';
+      entries.forEach(([num, info]) => {
+        csv += `"${num}","${info.name.replace(/"/g, '""')}","${info.phone}","${info.date}"\n`;
+      });
+
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'bingo_numeros_vendidos.csv';
+      a.click();
+    };
+
+    window.clearAll = async function() {
+      if (!isAdmin) return;
+      if (confirm('⚠️ ¿Estás seguro de que quieres BORRAR TODOS los números vendidos de la base de datos?')) {
+        await remove(numbersRef);
+      }
+    };
+  </script>
+</body>
+</html>
