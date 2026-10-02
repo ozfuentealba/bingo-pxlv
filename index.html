@@ -3,35 +3,44 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tablero de Bingo Online (000 - 200)</title>
+  <title>Bingo PXLV Neuquén (000 - 200)</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-slate-100 min-h-screen text-slate-800 pb-12">
 
-  <!-- Encabezado -->
-  <header class="bg-indigo-700 text-white py-6 shadow-md">
+  <!-- Encabezado Oscuro para resaltar el Logo Blanco y Rojo -->
+  <header class="bg-slate-900 text-white py-5 shadow-lg border-b-4 border-rose-600">
     <div class="max-w-6xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-4">
-      <div>
-        <div class="flex items-center gap-2">
-          <h1 class="text-2xl md:text-3xl font-bold">🎱 Bingo Online (000 - 200)</h1>
-          <span id="status-badge" class="bg-amber-500 text-white text-xs px-2 py-0.5 rounded-full font-semibold animate-pulse">
-            Conectando...
-          </span>
+      
+      <!-- Logo + Título -->
+      <div class="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
+        <img src="Logo PXLV Neuquen 2025 (White).png" alt="Logo PXLV Neuquén" class="h-12 md:h-14 w-auto object-contain">
+        <div>
+          <div class="flex items-center justify-center sm:justify-start gap-2">
+            <h1 class="text-xl md:text-2xl font-bold">🎱 Tablero de Bingo (000 - 200)</h1>
+            <span id="status-badge" class="bg-amber-500 text-white text-xs px-2 py-0.5 rounded-full font-semibold animate-pulse">
+              Conectando...
+            </span>
+          </div>
+          <p class="text-slate-300 text-xs md:text-sm mt-1">Elige tus números verdes para reservarlos. Quedarán bloqueados al validarse el pago.</p>
         </div>
-        <p class="text-indigo-200 text-sm mt-1">Toca los números verdes que quieras comprar y completa tus datos para bloquearlos.</p>
       </div>
 
       <!-- Contadores y Botón Admin -->
-      <div class="flex items-center gap-3 text-center">
-        <div class="bg-indigo-800 px-4 py-2 rounded-lg">
-          <span class="block text-xs text-indigo-200">Disponibles</span>
-          <span id="count-free" class="text-xl font-bold text-emerald-400">201</span>
+      <div class="flex flex-wrap items-center justify-center gap-2 text-center">
+        <div class="bg-slate-800 px-3 py-2 rounded-lg border border-slate-700">
+          <span class="block text-[11px] text-slate-300">Disponibles</span>
+          <span id="count-free" class="text-lg font-bold text-emerald-400">201</span>
         </div>
-        <div class="bg-indigo-800 px-4 py-2 rounded-lg">
-          <span class="block text-xs text-indigo-200">Vendidos</span>
-          <span id="count-sold" class="text-xl font-bold text-rose-400">0</span>
+        <div class="bg-slate-800 px-3 py-2 rounded-lg border border-slate-700">
+          <span class="block text-[11px] text-slate-300">Reservados</span>
+          <span id="count-reserved" class="text-lg font-bold text-amber-300">0</span>
         </div>
-        <button onclick="window.toggleAdmin()" id="admin-btn" class="bg-indigo-900 hover:bg-indigo-950 text-indigo-200 text-xs px-3 py-2 rounded-lg border border-indigo-600 transition">
+        <div class="bg-slate-800 px-3 py-2 rounded-lg border border-slate-700">
+          <span class="block text-[11px] text-slate-300">Bloqueados</span>
+          <span id="count-sold" class="text-lg font-bold text-rose-400">0</span>
+        </div>
+        <button onclick="window.toggleAdmin()" id="admin-btn" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs px-3 py-2.5 rounded-lg border border-slate-600 transition">
           🔑 Admin
         </button>
       </div>
@@ -43,15 +52,17 @@
     <!-- Columna Izquierda: Tablero Numérico -->
     <div class="lg:col-span-2 bg-white p-4 md:p-6 rounded-xl shadow-sm border border-slate-200">
       <div class="flex flex-wrap justify-between items-center mb-4 gap-2">
-        <div class="flex gap-3 text-xs font-medium">
+        <div class="flex flex-wrap gap-3 text-xs font-medium">
           <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-emerald-100 border border-emerald-500 inline-block"></span> Disponible</span>
           <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-indigo-600 inline-block"></span> Tu selección</span>
-          <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-rose-100 border border-rose-400 inline-block"></span> Vendido</span>
+          <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-amber-100 border border-amber-500 inline-block"></span> Reservado (Pendiente)</span>
+          <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-rose-100 border border-rose-400 inline-block"></span> Bloqueado (Pagado)</span>
         </div>
         <select id="filter-select" onchange="window.renderBoard()" class="text-sm border border-slate-300 rounded-lg px-2 py-1">
           <option value="all">Ver todos (201)</option>
           <option value="free">Solo disponibles</option>
-          <option value="sold">Solo vendidos</option>
+          <option value="reserved">Solo reservados</option>
+          <option value="paid">Solo bloqueados (pagados)</option>
         </select>
       </div>
 
@@ -63,7 +74,8 @@
 
     <!-- Columna Derecha: Formulario de Reserva -->
     <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 h-fit sticky top-6">
-      <h2 class="text-lg font-bold mb-3 border-b pb-2">Reservar mis Números</h2>
+      <h2 class="text-lg font-bold mb-1">Reservar mis Números</h2>
+      <p class="text-xs text-slate-500 mb-3 border-b pb-2">Al confirmar, tus números pasarán a estado <strong>Reservado</strong> hasta que el administrador valide el pago.</p>
       
       <div class="mb-4">
         <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Números elegidos:</label>
@@ -81,13 +93,13 @@
 
         <div>
           <label class="block text-sm font-medium mb-1">Teléfono / WhatsApp *</label>
-          <input type="tel" id="buyer-phone" required placeholder="Ej: 11 2345-6789"
+          <input type="tel" id="buyer-phone" required placeholder="Ej: 299 123-4567"
             class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
         </div>
 
         <button type="submit" id="submit-btn" disabled
           class="w-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-semibold py-2.5 rounded-lg transition">
-          Confirmar y Bloquear
+          Reservar Números
         </button>
       </form>
     </div>
@@ -99,8 +111,8 @@
     <div class="bg-white p-6 rounded-xl shadow-sm border-2 border-indigo-500">
       <div class="flex flex-wrap justify-between items-center mb-4 gap-2">
         <div>
-          <h2 class="text-lg font-bold text-indigo-900">🛡️ Panel de Organizador (Modo Admin Activo)</h2>
-          <p class="text-xs text-slate-500">Consulta los datos de los compradores, libera números o descarga la planilla en formato Excel.</p>
+          <h2 class="text-lg font-bold text-indigo-900">🛡️ Panel de Organizador (Validación de Pagos)</h2>
+          <p class="text-xs text-slate-500">Valida los números reservados indicando si pagaron por Efectivo o Transferencia para pasarlos a Bloqueado.</p>
         </div>
         <div class="flex gap-2">
           <button onclick="window.exportCSV()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-3 py-2 rounded-lg">
@@ -112,15 +124,43 @@
         </div>
       </div>
 
+      <!-- Resumen de Pagos para el Admin -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
+        <div class="bg-amber-50 border border-amber-200 p-3 rounded-lg flex justify-between items-center">
+          <span class="text-xs font-semibold text-amber-800">⏳ Pendientes (Reservados)</span>
+          <span id="admin-count-reserved" class="text-lg font-bold text-amber-700">0</span>
+        </div>
+        <div class="bg-emerald-50 border border-emerald-200 p-3 rounded-lg flex justify-between items-center">
+          <span class="text-xs font-semibold text-emerald-800">💵 Pagados en Efectivo</span>
+          <span id="admin-count-cash" class="text-lg font-bold text-emerald-700">0</span>
+        </div>
+        <div class="bg-blue-50 border border-blue-200 p-3 rounded-lg flex justify-between items-center">
+          <span class="text-xs font-semibold text-blue-800">🏦 Pagados por Transferencia</span>
+          <span id="admin-count-transfer" class="text-lg font-bold text-blue-700">0</span>
+        </div>
+      </div>
+
+      <!-- Filtro de la tabla de Admin -->
+      <div class="mb-3 flex items-center gap-2">
+        <label class="text-xs font-semibold text-slate-600">Filtrar listado:</label>
+        <select id="admin-table-filter" onchange="window.renderTable()" class="text-xs border border-slate-300 rounded px-2 py-1">
+          <option value="all">Todos los ocupados</option>
+          <option value="reserved">Solo Reservados (Pendientes de pago)</option>
+          <option value="paid">Solo Bloqueados (Pagados)</option>
+        </select>
+      </div>
+
       <div class="overflow-x-auto">
         <table class="w-full text-left border-collapse text-sm">
           <thead>
             <tr class="bg-slate-50 border-b text-slate-600">
-              <th class="py-2 px-3">Número</th>
+              <th class="py-2 px-3">N°</th>
               <th class="py-2 px-3">Comprador</th>
               <th class="py-2 px-3">Teléfono</th>
+              <th class="py-2 px-3">Estado</th>
+              <th class="py-2 px-3">Medio de Pago</th>
               <th class="py-2 px-3">Fecha</th>
-              <th class="py-2 px-3 text-right">Acción</th>
+              <th class="py-2 px-3 text-right">Validar Pago / Acciones</th>
             </tr>
           </thead>
           <tbody id="buyers-table-body"></tbody>
@@ -129,12 +169,39 @@
     </div>
   </section>
 
+  <!-- Modal de Administración al tocar un número en el tablero -->
+  <div id="admin-modal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-xl shadow-xl max-w-sm w-full p-5 border border-slate-200">
+      <div class="flex justify-between items-center border-b pb-3 mb-3">
+        <h3 id="modal-title" class="text-lg font-bold text-slate-800">Número 000</h3>
+        <button onclick="window.closeModal()" class="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
+      </div>
+      <div id="modal-body" class="space-y-2 text-sm text-slate-600 mb-5"></div>
+      <div class="space-y-2">
+        <p class="text-xs font-semibold uppercase text-slate-400">Confirmar pago y bloquear:</p>
+        <div class="grid grid-cols-2 gap-2">
+          <button id="modal-btn-cash" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold py-2.5 px-3 rounded-lg transition">
+            💵 Efectivo
+          </button>
+          <button id="modal-btn-transfer" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold py-2.5 px-3 rounded-lg transition">
+            🏦 Transferencia
+          </button>
+        </div>
+        <button id="modal-btn-pending" class="w-full bg-amber-100 hover:bg-amber-200 text-amber-800 text-xs font-semibold py-2 rounded-lg transition mt-1">
+          ⏳ Volver a estado Reservado
+        </button>
+        <button id="modal-btn-release" class="w-full bg-rose-100 hover:bg-rose-200 text-rose-700 text-xs font-semibold py-2 rounded-lg transition">
+          🗑️ Liberar número (Dejar disponible)
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Script de Firebase en Tiempo Real -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getDatabase, ref, onValue, runTransaction, remove } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+    import { getDatabase, ref, onValue, runTransaction, remove, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-    // Configuración oficial de tu proyecto Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyDHrcwDKg5e0njl8AOLPFapK6QucVYu7Gs",
       authDomain: "bingo-pxlv.firebaseapp.com",
@@ -145,7 +212,6 @@
       appId: "1:17622291591:web:55a3dc573195590bcbd422"
     };
 
-    // PIN para ingresar al panel de control (puedes cambiarlo si deseas)
     const ADMIN_PIN = "1234";
 
     const app = initializeApp(firebaseConfig);
@@ -161,17 +227,14 @@
       return String(n).padStart(3, '0');
     }
 
-    // Listener reactivo en tiempo real
     onValue(numbersRef, (snapshot) => {
       soldNumbers = snapshot.val() || {};
-      
-      // Deseleccionar si otro usuario acaba de confirmar el número
       selectedNumbers.forEach(num => {
         if (soldNumbers[num]) selectedNumbers.delete(num);
       });
 
       const badge = document.getElementById('status-badge');
-      badge.textContent = "En línea (Tiempo Real)";
+      badge.textContent = "En línea";
       badge.className = "bg-emerald-500 text-white text-xs px-2 py-0.5 rounded-full font-semibold";
 
       window.renderBoard();
@@ -187,29 +250,47 @@
       const filter = document.getElementById('filter-select').value;
       grid.innerHTML = '';
 
-      const soldCount = Object.keys(soldNumbers).length;
-      document.getElementById('count-sold').textContent = soldCount;
-      document.getElementById('count-free').textContent = (TOTAL_NUMBERS + 1) - soldCount;
+      let reservedCount = 0;
+      let paidCount = 0;
+
+      Object.values(soldNumbers).forEach(item => {
+        if (item.status === 'paid') paidCount++;
+        else reservedCount++;
+      });
+
+      const totalOccupied = reservedCount + paidCount;
+      document.getElementById('count-free').textContent = (TOTAL_NUMBERS + 1) - totalOccupied;
+      document.getElementById('count-reserved').textContent = reservedCount;
+      document.getElementById('count-sold').textContent = paidCount;
 
       for (let i = 0; i <= TOTAL_NUMBERS; i++) {
         const numStr = formatNum(i);
-        const isSold = Boolean(soldNumbers[numStr]);
+        const record = soldNumbers[numStr];
+        const isOccupied = Boolean(record);
+        const status = isOccupied ? (record.status || 'reserved') : 'free';
         const isSelected = selectedNumbers.has(numStr);
 
-        if (filter === 'free' && isSold) continue;
-        if (filter === 'sold' && !isSold) continue;
+        if (filter === 'free' && isOccupied) continue;
+        if (filter === 'reserved' && status !== 'reserved') continue;
+        if (filter === 'paid' && status !== 'paid') continue;
 
         const btn = document.createElement('button');
         btn.type = 'button';
 
-        if (isSold) {
-          const buyer = soldNumbers[numStr];
+        if (status === 'paid') {
           btn.className = 'p-1.5 rounded-lg border border-rose-300 bg-rose-50 text-rose-800 flex flex-col items-center justify-center cursor-pointer hover:bg-rose-100 transition';
           btn.innerHTML = `
-            <span class="font-bold text-xs line-through">${numStr}</span>
-            <span class="text-[10px] truncate w-full text-center font-medium">${buyer.name.split(' ')[0]}</span>
+            <span class="font-bold text-xs line-through">🔒${numStr}</span>
+            <span class="text-[10px] truncate w-full text-center font-medium">${record.name.split(' ')[0]}</span>
           `;
-          btn.onclick = () => window.handleSoldClick(numStr);
+          btn.onclick = () => window.handleOccupiedClick(numStr);
+        } else if (status === 'reserved') {
+          btn.className = 'p-1.5 rounded-lg border border-amber-400 bg-amber-100 text-amber-900 flex flex-col items-center justify-center cursor-pointer hover:bg-amber-200 transition';
+          btn.innerHTML = `
+            <span class="font-bold text-xs">⏳${numStr}</span>
+            <span class="text-[10px] truncate w-full text-center font-medium">${record.name.split(' ')[0]}</span>
+          `;
+          btn.onclick = () => window.handleOccupiedClick(numStr);
         } else if (isSelected) {
           btn.className = 'p-2 rounded-lg border border-indigo-700 bg-indigo-600 text-white font-bold text-sm shadow-inner transform scale-95 transition';
           btn.textContent = numStr;
@@ -224,7 +305,7 @@
       }
 
       renderSelectedBadges();
-      if (isAdmin) renderTable();
+      if (isAdmin) window.renderTable();
     };
 
     window.toggleSelect = function(numStr) {
@@ -257,14 +338,13 @@
       });
     }
 
-    // Transacción atómica para evitar duplicidad de compras concurrentes
     window.handleReserve = async function(e) {
       e.preventDefault();
       if (selectedNumbers.size === 0) return;
 
       const submitBtn = document.getElementById('submit-btn');
       submitBtn.disabled = true;
-      submitBtn.textContent = "Guardando...";
+      submitBtn.textContent = "Reservando...";
 
       const name = document.getElementById('buyer-name').value.trim();
       const phone = document.getElementById('buyer-phone').value.trim();
@@ -278,7 +358,7 @@
         try {
           const result = await runTransaction(numRef, (currentData) => {
             if (currentData === null) {
-              return { name, phone, date: now };
+              return { name, phone, date: now, status: 'reserved', paymentMethod: '' };
             }
             return; 
           });
@@ -290,30 +370,75 @@
 
       selectedNumbers.clear();
       document.getElementById('reserve-form').reset();
-      submitBtn.textContent = "Confirmar y Bloquear";
+      submitBtn.textContent = "Reservar Números";
 
       if (failedNums.length > 0) {
         alert(`Atención: El o los números [${failedNums.join(', ')}] acaban de ser ocupados por otra persona.`);
       } else {
-        alert(`¡Listo, ${name}! Tus números (${numsToBuy.join(', ')}) quedaron bloqueados exitosamente.`);
+        alert(`¡Solicitud enviada, ${name}!\n\nTus números (${numsToBuy.join(', ')}) quedaron en estado RESERVADO.\nUna vez que el administrador valide tu pago, pasarán a estado BLOQUEADO.`);
       }
       window.renderBoard();
     };
 
-    window.handleSoldClick = function(numStr) {
+    window.handleOccupiedClick = function(numStr) {
       const data = soldNumbers[numStr];
+      if (!data) return;
+
+      const isPaid = data.status === 'paid';
+      const estadoTexto = isPaid ? '🔒 BLOQUEADO (Pagado)' : '⏳ RESERVADO (Pendiente de validación)';
+
       if (!isAdmin) {
-        alert(`🔒 Número ${numStr} reservado por: ${data.name}`);
+        alert(`Número ${numStr}\nEstado: ${estadoTexto}\nPersona: ${data.name}`);
         return;
       }
-      const unlock = confirm(
-        `🔒 NÚMERO ${numStr} (Modo Admin)\n\n` +
-        `👤 Comprador: ${data.name}\n` +
-        `📞 Teléfono: ${data.phone}\n` +
-        `📅 Fecha: ${data.date}\n\n` +
-        `¿Deseas LIBERAR este número para que vuelva a estar disponible?`
-      );
-      if (unlock) window.releaseNumber(numStr);
+
+      document.getElementById('modal-title').textContent = `Gestionar Número ${numStr}`;
+      document.getElementById('modal-body').innerHTML = `
+        <p><strong>Estado actual:</strong> <span class="${isPaid ? 'text-rose-600 font-bold' : 'text-amber-600 font-bold'}">${estadoTexto}</span></p>
+        <p><strong>Comprador:</strong> ${data.name}</p>
+        <p><strong>Teléfono:</strong> ${data.phone}</p>
+        <p><strong>Medio de Pago:</strong> ${data.paymentMethod || 'Sin validar'}</p>
+        <p><strong>Fecha:</strong> ${data.date}</p>
+      `;
+
+      document.getElementById('modal-btn-cash').onclick = () => {
+        window.validatePayment(numStr, 'Efectivo');
+        window.closeModal();
+      };
+      document.getElementById('modal-btn-transfer').onclick = () => {
+        window.validatePayment(numStr, 'Transferencia');
+        window.closeModal();
+      };
+      document.getElementById('modal-btn-pending').onclick = () => {
+        window.setPending(numStr);
+        window.closeModal();
+      };
+      document.getElementById('modal-btn-release').onclick = () => {
+        if (confirm(`¿Liberar el número ${numStr} de ${data.name} para que vuelva a estar disponible?`)) {
+          window.releaseNumber(numStr);
+          window.closeModal();
+        }
+      };
+
+      const modal = document.getElementById('admin-modal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    };
+
+    window.closeModal = function() {
+      const modal = document.getElementById('admin-modal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    };
+
+    window.validatePayment = async function(numStr, method) {
+      if (!isAdmin) return;
+      await update(ref(db, `bingo_000_200/${numStr}`), { status: 'paid', paymentMethod: method });
+    };
+
+    window.setPending = async function(numStr) {
+      if (!isAdmin) return;
+      await update(ref(db, `bingo_000_200/${numStr}`), { status: 'reserved', paymentMethod: '' });
     };
 
     window.releaseNumber = async function(numStr) {
@@ -333,54 +458,106 @@
         isAdmin = true;
         document.getElementById('admin-section').classList.remove('hidden');
         document.getElementById('admin-btn').textContent = "🔓 Salir Admin";
-        renderTable();
+        window.renderTable();
       } else if (pin !== null) {
         alert("PIN incorrecto.");
       }
     };
 
-    function renderTable() {
+    window.renderTable = function() {
       const tbody = document.getElementById('buyers-table-body');
+      const tableFilter = document.getElementById('admin-table-filter').value;
       const entries = Object.entries(soldNumbers).sort((a, b) => a[0].localeCompare(b[0]));
 
-      if (entries.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" class="py-6 text-center text-slate-400">Aún no hay números vendidos.</td></tr>`;
+      let countReserved = 0, countCash = 0, countTransfer = 0;
+
+      entries.forEach(([, info]) => {
+        if (info.status === 'paid') {
+          if (info.paymentMethod === 'Efectivo') countCash++;
+          else if (info.paymentMethod === 'Transferencia') countTransfer++;
+        } else {
+          countReserved++;
+        }
+      });
+
+      document.getElementById('admin-count-reserved').textContent = countReserved;
+      document.getElementById('admin-count-cash').textContent = countCash;
+      document.getElementById('admin-count-transfer').textContent = countTransfer;
+
+      const filteredEntries = entries.filter(([, info]) => {
+        const st = info.status || 'reserved';
+        if (tableFilter === 'reserved') return st === 'reserved';
+        if (tableFilter === 'paid') return st === 'paid';
+        return true;
+      });
+
+      if (filteredEntries.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="py-6 text-center text-slate-400">No hay registros para este filtro.</td></tr>`;
         return;
       }
 
-      tbody.innerHTML = entries.map(([num, info]) => `
-        <tr class="border-b hover:bg-slate-50">
-          <td class="py-2 px-3 font-bold text-indigo-700">${num}</td>
-          <td class="py-2 px-3 font-medium">${info.name}</td>
-          <td class="py-2 px-3">${info.phone}</td>
-          <td class="py-2 px-3 text-xs text-slate-500">${info.date}</td>
-          <td class="py-2 px-3 text-right">
-            <button onclick="window.releaseNumber('${num}')" class="text-rose-600 hover:underline text-xs font-semibold">Liberar</button>
-          </td>
-        </tr>
-      `).join('');
-    }
+      tbody.innerHTML = filteredEntries.map(([num, info]) => {
+        const isPaid = info.status === 'paid';
+        const statusBadge = isPaid
+          ? `<span class="bg-rose-100 text-rose-800 text-xs font-bold px-2 py-0.5 rounded-full">🔒 Bloqueado</span>`
+          : `<span class="bg-amber-100 text-amber-800 text-xs font-bold px-2 py-0.5 rounded-full">⏳ Reservado</span>`;
+
+        let paymentBadge = `<span class="text-slate-400 text-xs italic">Pendiente</span>`;
+        if (isPaid && info.paymentMethod === 'Efectivo') {
+          paymentBadge = `<span class="bg-emerald-100 text-emerald-800 text-xs font-semibold px-2 py-0.5 rounded">💵 Efectivo</span>`;
+        } else if (isPaid && info.paymentMethod === 'Transferencia') {
+          paymentBadge = `<span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-0.5 rounded">🏦 Transferencia</span>`;
+        }
+
+        return `
+          <tr class="border-b hover:bg-slate-50">
+            <td class="py-2.5 px-3 font-bold text-indigo-700">${num}</td>
+            <td class="py-2.5 px-3 font-medium">${info.name}</td>
+            <td class="py-2.5 px-3">${info.phone}</td>
+            <td class="py-2.5 px-3">${statusBadge}</td>
+            <td class="py-2.5 px-3">${paymentBadge}</td>
+            <td class="py-2.5 px-3 text-xs text-slate-500">${info.date}</td>
+            <td class="py-2.5 px-3 text-right space-x-1 whitespace-nowrap">
+              <button onclick="window.validatePayment('${num}', 'Efectivo')"
+                class="bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-semibold px-2 py-1 rounded transition">
+                💵 Efectivo
+              </button>
+              <button onclick="window.validatePayment('${num}', 'Transferencia')"
+                class="bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-semibold px-2 py-1 rounded transition">
+                🏦 Transf.
+              </button>
+              <button onclick="if(confirm('¿Liberar el número ${num}?')) window.releaseNumber('${num}')"
+                class="bg-rose-100 hover:bg-rose-200 text-rose-700 text-[11px] font-semibold px-2 py-1 rounded transition">
+                Liberar
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    };
 
     window.exportCSV = function() {
       const entries = Object.entries(soldNumbers).sort((a, b) => a[0].localeCompare(b[0]));
-      if (entries.length === 0) return alert('No hay números vendidos para exportar.');
+      if (entries.length === 0) return alert('No hay números ocupados para exportar.');
 
-      let csv = 'Numero,Comprador,Telefono,Fecha\n';
+      let csv = 'Numero,Comprador,Telefono,Estado,Medio de Pago,Fecha\n';
       entries.forEach(([num, info]) => {
-        csv += `"${num}","${info.name.replace(/"/g, '""')}","${info.phone}","${info.date}"\n`;
+        const estado = info.status === 'paid' ? 'Bloqueado (Pagado)' : 'Reservado (Pendiente)';
+        const medio = info.paymentMethod || 'Pendiente';
+        csv += `"${num}","${info.name.replace(/"/g, '""')}","${info.phone}","${estado}","${medio}","${info.date}"\n`;
       });
 
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'bingo_numeros_vendidos.csv';
+      a.download = 'bingo_planilla_control.csv';
       a.click();
     };
 
     window.clearAll = async function() {
       if (!isAdmin) return;
-      if (confirm('⚠️ ¿Estás seguro de que quieres BORRAR TODOS los números vendidos de la base de datos?')) {
+      if (confirm('⚠️ ¿Estás seguro de que quieres BORRAR TODOS los números de la base de datos?')) {
         await remove(numbersRef);
       }
     };
